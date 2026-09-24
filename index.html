@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Computer-Based Reading Test</title>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+        }
+        .header-bar {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 50px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #ccc;
+            z-index: 10;
+        }
+        #main-container {
+            display: flex;
+            width: 100%;
+            margin-top: 50px;
+        }
+        #left-pane, #right-pane {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        #left-pane {
+            border-right: 2px solid #ccc;
+            background-color: #fff;
+            line-height: 1.6;
+        }
+        #right-pane {
+            background-color: #fafafa;
+        }
+        h2 { margin-top: 0; color: #333; padding-top: 20px; }
+        h2:first-child { padding-top: 0; }
+        .highlight { background-color: #fffb00; }
+        .question-block {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .q-num {
+            font-weight: bold;
+            margin-right: 10px;
+            background: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+        button.tool-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button.tool-btn:hover { background-color: #0056b3; }
+        input[type="text"], select {
+            padding: 5px;
+            font-size: 14px;
+            margin-top: 5px;
+            max-width: 100%;
+        }
+        label { display: block; margin: 8px 0; cursor: pointer; }
+        .match-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background: #fdfdfd;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <button class="tool-btn" id="highlightBtn">Highlight Selected Text</button>
+        <span style="margin-left:15px; font-size:14px; color:#555;">Select text in the passage and click to highlight.</span>
+    </div>
+
+    <div id="main-container">
+        <!-- Left Pane: Passages -->
+        <div id="left-pane">
+            <h2>Reading Passage 1: The Fading Night</h2>
+            <p>If humanity naturally thrived under the moon, the division between day and night would be irrelevant to our species. However, as daytime creatures, we have artificially illuminated the night to accommodate our modern routines. This environmental modification causes light pollution, primarily driven by inefficient lighting designs that cast illumination upward into the atmosphere instead of focusing it downward. This widespread glare affects the natural behaviors—such as migration and reproduction—of countless species.</p>
+            <p>Historically, nocturnal light pollution was non-existent. Before gaslights, a major city like 19th-century London relied purely on candles. Today, vast regions are saturated in artificial brightness. This profoundly impacts wildlife. Disoriented by city lights, migratory birds often collide with illuminated structures, with younger birds suffering the highest casualty rates. In coastal areas, nesting sea turtles struggle to locate darkened shores, while artificial lights disorient newly hatched turtles trying to reach the ocean. Similarly, amphibians residing near busy roads face severe disruptions to their breeding routines due to extreme artificial glare.</p>
+            
+            <hr style="margin: 40px 0;">
+
+            <h2>Reading Passage 2: Psychology in Architecture</h2>
+            <p><strong>A.</strong> The spaces we inhabit profoundly influence our behavior. While environmental psychologists have vast research on this, many academics have historically maintained an unhelpful attitude, refusing to share findings with practical building planners, preferring to keep their work strictly theoretical.</p>
+            <p><strong>B.</strong> Some studies explicitly compare similar environments. For instance, research analyzing police data demonstrated that residential apartment blocks surrounded by nature and greenery experienced noticeably lower crime rates compared to identical buildings lacking vegetation.</p>
+            <p><strong>F.</strong> A prominent area benefiting from these behavioral guidelines is hospital design. Research shows that poor navigation causes stress, which negatively impacts immune responses. Ultimately, the fundamental layout of a medical building is the most critical factor in helping patients orient themselves, rather than just the placement of signs.</p>
+
+            <hr style="margin: 40px 0;">
+
+            <h2>Reading Passage 3: Have teenagers always existed?</h2>
+            <p>Our ancestor, Homo erectus, may not have had culture or even language, but did they have teenagers? That question has been contested in the past few years, with some anthropologists claiming evidence of an adolescent phase in human fossils. This is not merely an academic debate. Humans today are the only animals on Earth to have a teenage phase, yet we have very little idea why. Establishing exactly when adolescence first evolved could help us understand its practical purpose today.</p>
+            <p>Until recently, the dominant explanation was that physical growth is delayed by our need to grow large brains and to learn all the behaviour patterns associated with humanity. While such behaviour is still developing, humans cannot easily fend for themselves, so it is best to stay small and look youthful. That way your parents and other members of the social group are motivated to continue looking after you.</p>
+            <p>The human fossil record is extremely sparse, and the number of fossilised children minuscule. Nevertheless, anthropologists have begun to look at what can be learned of the lives of our ancestors from these youngsters. One of the most studied is the famous Turkana boy, an almost complete skeleton of Homo erectus from 1.6 million years ago. Accurately assessing how old someone is from their skeleton is a tricky business, relying on estimates of teeth, bones, and general size.</p>
+            <p>Susan Anton points to research by Margaret Clegg, who studied 18th and 19th-century skeletons whose ages at death were known. When she tried to age the skeletons without checking the records, she found inconsistencies similar to those of the Turkana boy. Anton thinks that Homo erectus had already developed modern human patterns of growth, with a late adolescent spurt. She believes the Turkana boy was just about to enter it.</p>
+            <p>Anthropologist Steven Leigh goes further. He believes the idea of adolescence as catch-up growth does not explain why the growth rate increases so dramatically. He says that many apes have growth spurts in particular body regions to coincide with the seasons when food is plentiful, minimizing the risk of lacking food while growing. According to his theory, adolescence evolved as an integral part of efficient upright locomotion, as well as to accommodate more complex brains.</p>
+            <p>Another approach relies on the minute analysis of tooth growth. Every nine days or so the growing teeth of both apes and humans acquire ridges on their enamel surface. These are like rings in a tree trunk: the number of them tells you how long the crown of a tooth took to form. Across mammals, the rate at which teeth develop is closely related to how fast the brain grows and the age you mature.</p>
+            <p>A more decisive piece of evidence came last year when researchers published findings from a study of Neanderthal teeth. Neanderthals had much faster tooth growth than Homo erectus. Lead researcher Fernando Ramirez-Rozzi thinks Neanderthals died young primarily because of the cold, harsh environment they had to endure in glacial Europe. They evolved to grow up quicker than their immediate ancestors, probably reaching adulthood quickly without delaying for an adolescent growth spurt.</p>
+        </div>
+
+        <!-- Right Pane: Questions -->
+        <div id="right-pane">
+            <h2>Questions 1-6 (True/False/Not Given)</h2>
+            <div class="question-block">
+                <div><span class="q-num">1</span> Few people recognize nowadays that humans function best in daylight.</div>
+                <label><input type="radio" name="q1" value="TRUE"> TRUE</label>
+                <label><input type="radio" name="q1" value="FALSE"> FALSE</label>
+                <label><input type="radio" name="q1" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">2</span> Most light pollution is caused by direction rather than intensity.</div>
+                <label><input type="radio" name="q2" value="TRUE"> TRUE</label>
+                <label><input type="radio" name="q2" value="FALSE"> FALSE</label>
+                <label><input type="radio" name="q2" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+
+            <h2>Questions 8-10 (Fill in the Blanks)</h2>
+            <div class="question-block">
+                <div><span class="q-num">8</span> The worst-affected migrating birds are those which are:</div>
+                <input type="text" id="q8" placeholder="Type answer here...">
+                
+                <div style="margin-top: 15px;"><span class="q-num">9</span> They often bump into:</div>
+                <input type="text" id="q9" placeholder="Type answer here...">
+            </div>
+
+            <h2>Questions 14-15 (Matching Headings)</h2>
+            <div class="question-block">
+                <div><span class="q-num">14</span> Paragraph A</div>
+                <select id="q14">
+                    <option value="">Select heading...</option>
+                    <option value="i">i - A comparison between similar buildings</option>
+                    <option value="vii">vii - Academics with an unhelpful attitude</option>
+                    <option value="ix">ix - A unique co-operative scheme</option>
+                </select>
+                
+                <div style="margin-top: 15px;"><span class="q-num">15</span> Paragraph B</div>
+                <select id="q15">
+                    <option value="">Select heading...</option>
+                    <option value="i">i - A comparison between similar buildings</option>
+                    <option value="vii">vii - Academics with an unhelpful attitude</option>
+                    <option value="ix">ix - A unique co-operative scheme</option>
+                </select>
+            </div>
+
+            <h2>Questions 21-22 (Multiple Choice)</h2>
+            <div class="question-block">
+                <p>Which <strong>TWO</strong> of the following benefits arise from environmental psychology in building planning?</p>
+                <label><input type="checkbox" value="A"> A. Better relationships between staff</label>
+                <label><input type="checkbox" value="B"> B. Improved educational performance</label>
+                <label><input type="checkbox" value="C"> C. Reduction of environmental pollution</label>
+                <label><input type="checkbox" value="D"> D. Fewer mistakes made by medical staff</label>
+                <label><input type="checkbox" value="E"> E. Easier detection of crime</label>
+            </div>
+            
+            <h2>Question 26 (Sentence Completion)</h2>
+            <div class="question-block">
+                <div><span class="q-num">26</span> Experts believe that if the <input type="text" style="width: 120px;" placeholder="..."> of a building is clear, patient outcomes will improve.</div>
+            </div>
+
+            <hr style="margin: 40px 0;">
+
+            <h2>Questions 27-30 (Multiple Choice)</h2>
+            <div class="question-block">
+                <div><span class="q-num">27</span> In the first paragraph, why does the writer say 'This is not merely an academic debate'?</div>
+                <label><input type="radio" name="q27" value="A"> A. Anthropologists' theories need to be backed up by practical research.</label>
+                <label><input type="radio" name="q27" value="B"> B. There have been some important misunderstandings among anthropologists.</label>
+                <label><input type="radio" name="q27" value="C"> C. The attitudes of anthropologists towards adolescence are changing.</label>
+                <label><input type="radio" name="q27" value="D"> D. The work of anthropologists could inform our understanding of modern adolescence.</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">28</span> What was Susan Anton's opinion of the Turkana boy?</div>
+                <label><input type="radio" name="q28" value="A"> A. He would have experienced an adolescent phase had he lived.</label>
+                <label><input type="radio" name="q28" value="B"> B. His skull showed he had already reached adulthood.</label>
+                <label><input type="radio" name="q28" value="C"> C. His skeleton and teeth could not be compared to those from a more modern age.</label>
+                <label><input type="radio" name="q28" value="D"> D. He must have grown much faster than others alive at the time.</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">29</span> What point does Steven Leigh make?</div>
+                <label><input type="radio" name="q29" value="A"> A. Different parts of the human skeleton develop at different speeds.</label>
+                <label><input type="radio" name="q29" value="B"> B. The growth period of many apes is confined to times when there is enough food.</label>
+                <label><input type="radio" name="q29" value="C"> C. Humans have different rates of development from each other depending on living conditions.</label>
+                <label><input type="radio" name="q29" value="D"> D. The growth phase in most apes lasts longer if more food is available.</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">30</span> What can we learn from a mammal's teeth?</div>
+                <label><input type="radio" name="q30" value="A"> A. A poor diet will cause them to grow more slowly.</label>
+                <label><input type="radio" name="q30" value="B"> B. They are a better indication of lifestyle than a skeleton.</label>
+                <label><input type="radio" name="q30" value="C"> C. Their growing period is difficult to predict accurately.</label>
+                <label><input type="radio" name="q30" value="D"> D. Their speed of growth is directly related to the body's speed of development.</label>
+            </div>
+
+            <h2>Questions 31-36 (Yes/No/Not Given)</h2>
+            <div class="question-block">
+                <div><span class="q-num">31</span> It is difficult for anthropologists to do research on human fossils because they are so rare.</div>
+                <label><input type="radio" name="q31" value="YES"> YES</label>
+                <label><input type="radio" name="q31" value="NO"> NO</label>
+                <label><input type="radio" name="q31" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">32</span> Modern methods mean it is possible to predict the age of a skeleton with accuracy.</div>
+                <label><input type="radio" name="q32" value="YES"> YES</label>
+                <label><input type="radio" name="q32" value="NO"> NO</label>
+                <label><input type="radio" name="q32" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">33</span> Susan Anton's conclusion about the Turkana boy reinforces an established idea.</div>
+                <label><input type="radio" name="q33" value="YES"> YES</label>
+                <label><input type="radio" name="q33" value="NO"> NO</label>
+                <label><input type="radio" name="q33" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">34</span> Steven Leigh's ideas are likely to be met with disbelief by many anthropologists.</div>
+                <label><input type="radio" name="q34" value="YES"> YES</label>
+                <label><input type="radio" name="q34" value="NO"> NO</label>
+                <label><input type="radio" name="q34" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">35</span> Researchers in France and Spain developed a unique method of analysing teeth.</div>
+                <label><input type="radio" name="q35" value="YES"> YES</label>
+                <label><input type="radio" name="q35" value="NO"> NO</label>
+                <label><input type="radio" name="q35" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">36</span> There has been too little research comparing the brains of Homo erectus and Neanderthals.</div>
+                <label><input type="radio" name="q36" value="YES"> YES</label>
+                <label><input type="radio" name="q36" value="NO"> NO</label>
+                <label><input type="radio" name="q36" value="NOT GIVEN"> NOT GIVEN</label>
+            </div>
+
+            <h2>Questions 37-40 (Matching Sentence Endings)</h2>
+            <div class="match-box">
+                <strong>Options:</strong><br>
+                A. inconsistencies between height, skeleton and dental evidence.<br>
+                B. the fact that human beings walk on two legs.<br>
+                C. the way teeth grew.<br>
+                D. a need to be dependent on others for survival.<br>
+                E. difficult climatic conditions.<br>
+                F. increased quantities of food.<br>
+                G. the existence of much larger brains than previously.
+            </div>
+            <div class="question-block">
+                <div><span class="q-num">37</span> Until recently, delayed growth in humans until adolescence was felt to be due to:</div>
+                <select id="q37">
+                    <option value="">Select option...</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                </select>
+                
+                <div style="margin-top: 15px;"><span class="q-num">38</span> In her research, Margaret Clegg discovered:</div>
+                <select id="q38">
+                    <option value="">Select option...</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                </select>
+
+                <div style="margin-top: 15px;"><span class="q-num">39</span> Steven Leigh thought the existence of adolescence is connected to:</div>
+                <select id="q39">
+                    <option value="">Select option...</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                </select>
+
+                <div style="margin-top: 15px;"><span class="q-num">40</span> Research on Neanderthals suggests that they had short lives because of:</div>
+                <select id="q40">
+                    <option value="">Select option...</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('highlightBtn').addEventListener('click', function() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount || selection.isCollapsed) return;
+            
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.className = 'highlight';
+            
+            try {
+                range.surroundContents(span);
+            } catch (e) {
+                alert("Please select text within a single paragraph to highlight properly.");
+            }
+            selection.removeAllRanges();
+        });
+    </script>
+</body>
+</html>
