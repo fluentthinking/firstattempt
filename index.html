@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Computer-Based Reading Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            color: #000;
+            overflow: hidden; /* Prevent body scroll, handle in panes */
+        }
+
+        /* Top Header (Minimal) */
+        .header {
+            height: 40px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-weight: bold;
+        }
+
+        /* Main Container */
+        #main-container {
+            display: flex;
+            height: calc(100vh - 120px); /* Account for header and bottom bar */
+            width: 100%;
+        }
+
+        /* Parts wrapper */
+        .test-part {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Left and Right Panes */
+        .passage-pane, .questions-pane {
+            width: 50%;
+            padding: 30px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+        
+        .passage-pane {
+            border-right: 4px solid #ccc;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .questions-pane {
+            background-color: #fafafa;
+        }
+
+        h2 { margin-top: 0; color: #333; }
+        
+        /* Highlight Feature Tooltip */
+        #highlight-menu {
+            position: fixed;
+            display: none;
+            background: #fff;
+            border: 1px solid #aaa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 1000;
+            padding: 2px;
+            align-items: center;
+        }
+        #highlight-menu::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+        }
+        #highlight-menu::before {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 7px 7px 0;
+            border-style: solid;
+            border-color: #aaa transparent transparent transparent;
+        }
+        .hm-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            color: #333;
+        }
+        .hm-btn:hover { background: #eee; }
+        .hm-btn:first-child { border-right: 1px solid #ddd; }
+        
+        .ielts-highlight { background-color: #ffeb3b; }
+
+        /* Question Blocks */
+        .question-block {
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .q-num {
+            display: inline-block;
+            border: 1px solid #333;
+            padding: 2px 6px;
+            font-weight: bold;
+            margin-right: 10px;
+            background: #fff;
+        }
+        label { display: block; margin: 8px 0; cursor: pointer; }
+        input[type="text"], select {
+            padding: 5px;
+            font-size: 14px;
+            margin-top: 5px;
+            max-width: 100%;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 80px;
+            background: #fff;
+            border-top: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .nav-group {
+            display: flex;
+            align-items: center;
+            margin-right: 40px;
+        }
+        .part-label {
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            margin-right: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+            border: 1px solid transparent;
+            text-decoration: none;
+        }
+        .nav-btn:hover {
+            background: #eee;
+        }
+        .nav-btn.active {
+            border: 2px solid #0056b3;
+            color: #0056b3;
+            font-weight: bold;
+        }
+        .nav-btn.part-active {
+            border: 2px solid #000;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">IELTS Reading</div>
+
+    <!-- Contextual Highlight Menu -->
+    <div id="highlight-menu">
+        <button class="hm-btn" onclick="alert('Note feature activated (placeholder)')">
+            <span style="font-size:16px;">💬</span>
+            <span>Note</span>
+        </button>
+        <button class="hm-btn" onclick="applyHighlight()">
+            <span style="font-size:16px;">🖍️</span>
+            <span>Highlight</span>
+        </button>
+    </div>
+
+    <div id="main-container">
+        
+        <!-- ================= PART 1 ================= -->
+        <div id="part-1" class="test-part">
+            <div class="passage-pane">
+                <h2>Our Vanishing Night</h2>
+                <p>If humanity naturally thrived under the moon, the division between day and night would be irrelevant to our species. However, as daytime creatures, we have artificially illuminated the night to accommodate our modern routines. This environmental modification causes light pollution, primarily driven by inefficient lighting designs that cast illumination upward into the atmosphere instead of focusing it downward. This widespread glare affects the natural behaviors—such as migration and reproduction—of countless species.</p>
+                <p>Historically, nocturnal light pollution was non-existent. Before gaslights, a major city like 19th-century London relied purely on candles. Today, vast regions are saturated in artificial brightness. This profoundly impacts wildlife. Disoriented by city lights, migratory birds often collide with illuminated structures, with younger birds suffering the highest casualty rates.</p>
+                <p>In coastal areas, nesting sea turtles struggle to locate darkened shores, while artificial lights disorient newly hatched turtles trying to reach the ocean. Similarly, amphibians residing near busy roads face severe disruptions to their breeding routines due to extreme artificial glare.</p>
+            </div>
+            <div class="questions-pane" id="qpane-1">
+                <div class="question-block" id="q-1">
+                    <div><span class="q-num">1</span> Few people recognize nowadays that humans function best in daylight.</div>
+                    <label><input type="radio" name="q1" value="TRUE"> TRUE</label>
+                    <label><input type="radio" name="q1" value="FALSE"> FALSE</label>
+                    <label><input type="radio" name="q1" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                <div class="question-block" id="q-2">
+                    <div><span class="q-num">2</span> Most light pollution is caused by direction rather than intensity.</div>
+                    <label><input type="radio" name="q2" value="TRUE"> TRUE</label>
+                    <label><input type="radio" name="q2" value="FALSE"> FALSE</label>
+                    <label><input type="radio" name="q2" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <h3 style="margin-top: 30px;">Questions 8-10</h3>
+                <p><i>Complete the sentences below.</i></p>
+                <div class="question-block" id="q-8">
+                    <div><span class="q-num">8</span> The worst-affected migrating birds are those which are: <input type="text" placeholder="..."></div>
+                </div>
+                <div class="question-block" id="q-9">
+                    <div><span class="q-num">9</span> They often bump into: <input type="text" placeholder="..."></div>
+                </div>
+                <div class="question-block" id="q-10">
+                    <div><span class="q-num">10</span> Desert rodents and badgers are more at risk from: <input type="text" placeholder="..."></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PART 2 ================= -->
+        <div id="part-2" class="test-part" style="display: none;">
+            <div class="passage-pane">
+                <h2>Is there a psychologist in the building?</h2>
+                <p><strong>A.</strong> The spaces we inhabit profoundly influence our behavior. While environmental psychologists have vast research on this, many academics have historically maintained an unhelpful attitude, refusing to share findings with practical building planners, preferring to keep their work strictly theoretical.</p>
+                <p><strong>B.</strong> Some studies explicitly compare similar environments. For instance, research analyzing police data demonstrated that residential apartment blocks surrounded by nature and greenery experienced noticeably lower crime rates compared to identical buildings lacking vegetation.</p>
+                <p><strong>C.</strong> Environmental psychologists are increasingly in demand. Professor David Uzzell points to the rebuilding of one south London school as a striking example of how building design can affect human behavior positively.</p>
+                <p><strong>F.</strong> A prominent area benefiting from these behavioral guidelines is hospital design. Research shows that poor navigation causes stress, which negatively impacts immune responses. Ultimately, the fundamental layout of a medical building is the most critical factor in helping patients orient themselves, rather than just the placement of signs.</p>
+            </div>
+            <div class="questions-pane" id="qpane-2">
+                <h3>Questions 14-15</h3>
+                <div class="question-block" id="q-14">
+                    <div><span class="q-num">14</span> Paragraph A</div>
+                    <select><option>Select heading...</option><option>i</option><option>vii</option><option>ix</option></select>
+                </div>
+                <div class="question-block" id="q-15">
+                    <div><span class="q-num">15</span> Paragraph B</div>
+                    <select><option>Select heading...</option><option>i</option><option>vii</option><option>ix</option></select>
+                </div>
+
+                <h3 style="margin-top:30px;">Questions 21-22</h3>
+                <div class="question-block" id="q-21">
+                    <p>Which <strong>TWO</strong> of the following benefits arise from environmental psychology in building planning?</p>
+                    <label><input type="checkbox" value="A"> A. Better relationships between staff</label>
+                    <label><input type="checkbox" value="B"> B. Improved educational performance</label>
+                    <label><input type="checkbox" value="C"> C. Reduction of environmental pollution</label>
+                    <label><input type="checkbox" value="D"> D. Fewer mistakes made by medical staff</label>
+                    <label><input type="checkbox" value="E"> E. Easier detection of crime</label>
+                </div>
+
+                <h3 style="margin-top:30px;">Question 26</h3>
+                <div class="question-block" id="q-26">
+                    <div><span class="q-num">26</span> Experts believe that if the <input type="text" style="width: 120px;" placeholder="..."> of a building is clear, patient outcomes will improve.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PART 3 ================= -->
+        <div id="part-3" class="test-part" style="display: none;">
+            <div class="passage-pane">
+                <h2>Have teenagers always existed?</h2>
+                <p>Our ancestor, Homo erectus, may not have had culture or even language, but did they have teenagers? That question has been contested in the past few years, with some anthropologists claiming evidence of an adolescent phase in human fossils. This is not merely an academic debate. Humans today are the only animals on Earth to have a teenage phase, yet we have very little idea why.</p>
+                <p>Until recently, the dominant explanation was that physical growth is delayed by our need to grow large brains and to learn all the behaviour patterns associated with humanity.</p>
+                <p>Susan Anton points to research by Margaret Clegg, who studied 18th and 19th-century skeletons whose ages at death were known. When she tried to age the skeletons without checking the records, she found inconsistencies similar to those of the Turkana boy. Anton thinks that Homo erectus had already developed modern human patterns of growth, with a late adolescent spurt.</p>
+                <p>Anthropologist Steven Leigh goes further. He believes the idea of adolescence as catch-up growth does not explain why the growth rate increases so dramatically. He says that many apes have growth spurts in particular body regions to coincide with the seasons when food is plentiful. According to his theory, adolescence evolved as an integral part of efficient upright locomotion, as well as to accommodate more complex brains.</p>
+                <p>A more decisive piece of evidence came last year when researchers published findings from a study of Neanderthal teeth. Lead researcher Fernando Ramirez-Rozzi thinks Neanderthals died young primarily because of the cold, harsh environment they had to endure in glacial Europe. They evolved to grow up quicker than their immediate ancestors, probably reaching adulthood quickly without delaying for an adolescent growth spurt.</p>
+            </div>
+            <div class="questions-pane" id="qpane-3">
+                <h3>Questions 27-30</h3>
+                <div class="question-block" id="q-27">
+                    <div><span class="q-num">27</span> In the first paragraph, why does the writer say 'This is not merely an academic debate'?</div>
+                    <label><input type="radio" name="q27"> A. Anthropologists' theories need to be backed up by practical research.</label>
+                    <label><input type="radio" name="q27"> B. There have been some important misunderstandings among anthropologists.</label>
+                    <label><input type="radio" name="q27"> C. The attitudes of anthropologists towards adolescence are changing.</label>
+                    <label><input type="radio" name="q27"> D. The work of anthropologists could inform our understanding of modern adolescence.</label>
+                </div>
+                <div class="question-block" id="q-28">
+                    <div><span class="q-num">28</span> What was Susan Anton's opinion of the Turkana boy?</div>
+                    <label><input type="radio" name="q28"> A. He would have experienced an adolescent phase had he lived.</label>
+                    <label><input type="radio" name="q28"> B. His skull showed he had already reached adulthood.</label>
+                    <label><input type="radio" name="q28"> C. His skeleton and teeth could not be compared to those from a more modern age.</label>
+                    <label><input type="radio" name="q28"> D. He must have grown much faster than others alive at the time.</label>
+                </div>
+
+                <h3 style="margin-top:30px;">Questions 31-36</h3>
+                <div class="question-block" id="q-31">
+                    <div><span class="q-num">31</span> It is difficult for anthropologists to do research on human fossils because they are so rare.</div>
+                    <label><input type="radio" name="q31" value="YES"> YES</label>
+                    <label><input type="radio" name="q31" value="NO"> NO</label>
+                    <label><input type="radio" name="q31" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <h3 style="margin-top:30px;">Questions 37-40</h3>
+                <div class="question-block" id="q-37">
+                    <div><span class="q-num">37</span> Until recently, delayed growth in humans until adolescence was felt to be due to:</div>
+                    <select><option>Select...</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                </div>
+                <div class="question-block" id="q-40">
+                    <div><span class="q-num">40</span> Research on Neanderthals suggests that they had short lives because of:</div>
+                    <select><option>Select...</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-bar">
+        
+        <div class="nav-group" id="nav-group-1">
+            <span class="part-label">Part 1</span>
+            <!-- Generate buttons 1 to 13 -->
+            <script>
+                for(let i=1; i<=13; i++) {
+                    document.write(`<div class="nav-btn" onclick="navigateTo(1, ${i}, this)">${i}</div>`);
+                }
+            </script>
+        </div>
+
+        <div class="nav-group" id="nav-group-2">
+            <span class="part-label">Part 2</span>
+            <!-- Generate buttons 14 to 26 -->
+            <script>
+                for(let i=14; i<=26; i++) {
+                    document.write(`<div class="nav-btn" onclick="navigateTo(2, ${i}, this)">${i}</div>`);
+                }
+            </script>
+        </div>
+
+        <div class="nav-group" id="nav-group-3">
+            <span class="part-label">Part 3</span>
+            <!-- Generate buttons 27 to 40 -->
+            <script>
+                for(let i=27; i<=40; i++) {
+                    document.write(`<div class="nav-btn" onclick="navigateTo(3, ${i}, this)">${i}</div>`);
+                }
+            </script>
+        </div>
+
+    </div>
+
+    <script>
+        // Highlight Tooltip Logic
+        let currentSelectionRange = null;
+        const tooltip = document.getElementById('highlight-menu');
+
+        document.addEventListener('mouseup', function(e) {
+            // Only show if selecting inside a passage pane
+            if (!e.target.closest('.passage-pane')) return;
+
+            const selection = window.getSelection();
+            if (selection.toString().trim().length > 0) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 15}px`;
+                tooltip.style.display = 'flex';
+                currentSelectionRange = range;
+            }
+        });
+
+        document.addEventListener('mousedown', function(e) {
+            if (!e.target.closest('#highlight-menu')) {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        function applyHighlight() {
+            if (currentSelectionRange) {
+                const span = document.createElement('span');
+                span.className = 'ielts-highlight';
+                try {
+                    currentSelectionRange.surroundContents(span);
+                } catch (e) {
+                    alert("Please highlight text within a single paragraph or sentence to prevent formatting errors.");
+                }
+                window.getSelection().removeAllRanges();
+                tooltip.style.display = 'none';
+            }
+        }
+
+        // Navigation Logic
+        function navigateTo(partNumber, questionNumber, btnElement) {
+            // 1. Switch visible part
+            document.querySelectorAll('.test-part').forEach(el => el.style.display = 'none');
+            document.getElementById('part-' + partNumber).style.display = 'flex';
+
+            // 2. Update active states on buttons
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            if(btnElement) {
+                btnElement.classList.add('active');
+            } else {
+                // Find and activate the button manually if not clicked directly
+                const btns = document.querySelectorAll('.nav-btn');
+                for(let b of btns) {
+                    if(b.innerText == questionNumber) {
+                        b.classList.add('active');
+                        break;
+                    }
+                }
+            }
+
+            // 3. Scroll to the specific question
+            const qElement = document.getElementById('q-' + questionNumber);
+            if (qElement) {
+                const pane = document.getElementById('qpane-' + partNumber);
+                pane.scrollTo({
+                    top: qElement.offsetTop - pane.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+                
+                // Briefly flash background to indicate focus
+                qElement.style.backgroundColor = '#e6f2ff';
+                setTimeout(() => { qElement.style.backgroundColor = 'transparent'; }, 1000);
+            }
+        }
+
+        // Initialize first active button
+        window.onload = () => {
+            const firstBtn = document.querySelector('.nav-group .nav-btn');
+            if(firstBtn) firstBtn.classList.add('active');
+        }
+    </script>
+</body>
+</html>
