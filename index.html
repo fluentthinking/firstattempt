@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Computer-Based Reading Test - Part 1</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff;
+            color: #000;
+            overflow: hidden; 
+        }
+
+        /* Top Header */
+        .header {
+            height: 50px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .timer {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Main Container */
+        #main-container {
+            display: flex;
+            height: calc(100vh - 130px); 
+            width: 100%;
+        }
+
+        .test-part {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Left and Right Panes */
+        .passage-pane, .questions-pane {
+            width: 50%;
+            padding: 30px 40px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+        
+        .passage-pane {
+            border-right: 4px solid #ccc;
+            line-height: 1.8;
+            font-size: 15px;
+            text-align: justify;
+        }
+
+        .questions-pane {
+            background-color: #fafafa;
+        }
+
+        h2 { margin-top: 0; color: #333; font-size: 22px; text-align: center; margin-bottom: 25px; }
+        h3 { margin-top: 30px; border-bottom: 1px solid #ccc; padding-bottom: 5px; font-size: 18px;}
+
+        /* Highlight Feature Tooltip */
+        #highlight-menu {
+            position: fixed;
+            display: none;
+            background: #fff;
+            border: 1px solid #aaa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 1000;
+            padding: 2px;
+            align-items: center;
+        }
+        #highlight-menu::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+        }
+        #highlight-menu::before {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 7px 7px 0;
+            border-style: solid;
+            border-color: #aaa transparent transparent transparent;
+        }
+        .hm-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            color: #333;
+        }
+        .hm-btn:hover { background: #eee; }
+        .hm-btn:first-child { border-right: 1px solid #ddd; }
+        
+        .ielts-highlight { background-color: #ffeb3b; }
+
+        /* Question Blocks */
+        .question-block {
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+        .q-num {
+            display: inline-block;
+            border: 1px solid #333;
+            padding: 2px 6px;
+            font-weight: bold;
+            margin-right: 10px;
+            background: #fff;
+        }
+        label { display: block; margin: 8px 0; cursor: pointer; }
+        input[type="text"] {
+            padding: 5px;
+            font-size: 14px;
+            margin-top: 5px;
+            max-width: 100%;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 80px;
+            background: #fff;
+            border-top: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .nav-group {
+            display: flex;
+            align-items: center;
+            margin-right: 40px;
+        }
+        .part-label {
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            margin-right: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+            border: 1px solid transparent;
+            text-decoration: none;
+        }
+        .nav-btn:hover {
+            background: #eee;
+        }
+        .nav-btn.active {
+            border: 2px solid #0056b3;
+            color: #0056b3;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <span>IELTS Reading Test</span>
+        <div class="timer">
+            ⏱️ <span id="time-display">60:00</span>
+        </div>
+    </div>
+
+    <!-- Contextual Highlight Menu -->
+    <div id="highlight-menu">
+        <button class="hm-btn" onclick="alert('Note feature activated (placeholder)')">
+            <span style="font-size:16px;">💬</span><span>Note</span>
+        </button>
+        <button class="hm-btn" onclick="applyHighlight()">
+            <span style="font-size:16px;">🖍️</span><span>Highlight</span>
+        </button>
+    </div>
+
+    <div id="main-container">
+        
+        <!-- ================= PART 1 ================= -->
+        <div id="part-1" class="test-part">
+            <div class="passage-pane">
+                <h2>Our Vanishing Night</h2>
+                <p>If humans were truly at home under the light of the moon and stars, it would make no difference to us whether we were out and about at night or during the day, the midnight world as visible to us as it is to the vast number of nocturnal species on this planet. Instead, we are diurnal creatures, meaning our eyes are adapted to living in the sun's light. This is a basic evolutionary fact, even though most of us don't think of ourselves as diurnal beings any more than as primates or mammals or Earthlings. Yet it's the only way to explain what we've done to the night: we've engineered it to meet our needs by filling it with light.</p>
+                <p>This kind of engineering is no different from damming a river. Its benefits come with consequences – called light pollution – whose effects scientists are only now beginning to study. Light pollution is largely the result of bad lighting design, which allows artificial light to shine outward and upward into the sky, where it is not wanted, instead of focusing it downward, where it is. Wherever human light spills into the natural world, some aspect of life – migration, reproduction, feeding – is affected.</p>
+                <p>For most of human history, the phrase 'light pollution' would have made no sense. Imagine walking toward London on a moonlit night around 1800, when it was one of Earth's most populous cities. Nearly a million people lived there, making do, as they always had, with candles and lanterns. There would be no gaslights in the streets or squares for another seven years.</p>
+                <p>Now most of humanity lives under reflected, refracted light from overlit cities and suburbs, from light-flooded roads and factories. Nearly all of night-time Europe is a bright patch of light, as is most of the United States and much of Japan. In the South Atlantic the glow from a single fishing fleet – squid fishermen luring their prey with metal halide lamps – can be seen from space, burning brighter on occasions than Buenos Aires.</p>
+                <p>In most cities the sky looks as though it has been emptied of stars and taking their place is a constant orange glow. We've become so used to this that the glory of an unlit night – dark enough for the planet Venus to throw shadows on Earth – is wholly beyond our experience, beyond memory almost. And yet above the city's pale ceiling lies the rest of the universe, utterly undiminished by the light we waste.</p>
+                <p>We've lit up the night as if it were an unoccupied country, when nothing could be further from the truth. Among mammals alone, the number of nocturnal species is astonishing. Light is a powerful biological force, and on many species it acts as a magnet. The effect is so powerful that scientists speak of songbirds and seabirds being 'captured' by searchlights on land or by the light from gas flares on marine oil platforms, circling and circling in the thousands until they drop. Migrating at night, birds are apt to collide with brightly lit buildings; immature birds suffer in much higher numbers than adults.</p>
+                <p>Insects, of course, cluster around streetlights, and feeding on those insects is a crucial means of survival for many bat species. In some Swiss valleys the European lesser horseshoe bat began to vanish after streetlights were installed, perhaps because those valleys were suddenly filled with light-feeding pipistrelle bats. Other nocturnal mammals, like desert rodents and badgers, are more cautious about searching for food under the permanent full moon of light pollution because they've become easier targets for the predators who are hunting them.</p>
+                <p>Some birds – blackbirds and nightingales, among others – sing at unnatural hours in the presence of artificial light. Scientists have determined that long artificial days – and artificially short nights – induce early breeding in a wide range of birds. And because a longer day allows for longer feeding, it can also affect migration schedules. The problem, of course, is that migration, like most other aspects of bird behavior, is a precisely timed biological behavior. Leaving prematurely may mean reaching a destination too soon for nesting conditions to be right.</p>
+                <p>Nesting sea turtles, which seek out dark beaches, find fewer and fewer of them to bury their eggs on. When the baby sea turtles emerge from the eggs, they gravitate toward the brighter, more reflective sea horizon but find themselves confused by artificial lighting behind the beach. In Florida alone, hatchling losses number in the hundreds of thousands every year. Frogs and toads living on the side of major highways suffer nocturnal light levels that are as much as a million times brighter than normal, disturbing nearly every aspect of their behavior, including their night-time breeding choruses.</p>
+                <p>It was once thought that light pollution only affected astronomers, who need to see the night sky in all its glorious clarity. And, in fact, some of the earliest civic efforts to control light pollution were made half a century ago to protect the view from Lowell Observatory in Flagstaff, Arizona. In 2001 Flagstaff was declared the first International Dark Sky City. By now the effort to control light pollution has spread around the globe. More and more cities and even entire countries have committed themselves to reducing unwanted glare.</p>
+            </div>
+            
+            <div class="questions-pane" id="qpane-1">
+                <h3>Questions 1-7</h3>
+                <p><i>Do the following statements agree with the information given in Reading Passage 1?</i><br><br>
+                <b>TRUE</b> if the statement agrees with the information<br>
+                <b>FALSE</b> if the statement contradicts the information<br>
+                <b>NOT GIVEN</b> if there is no information on this</p>
+                
+                <div class="question-block" id="q-1">
+                    <div><span class="q-num">1</span> Few people recognise nowadays that human beings are designed to function best in daylight.</div>
+                    <label><input type="radio" name="q1" value="TRUE"> TRUE</label><label><input type="radio" name="q1" value="FALSE"> FALSE</label><label><input type="radio" name="q1" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                <div class="question-block" id="q-2">
+                    <div><span class="q-num">2</span> Most light pollution is caused by the direction of artificial lights rather than their intensity.</div>
+                    <label><input type="radio" name="q2"> TRUE</label><label><input type="radio" name="q2"> FALSE</label><label><input type="radio" name="q2"> NOT GIVEN</label>
+                </div>
+                <div class="question-block" id="q-3">
+                    <div><span class="q-num">3</span> By 1800 the city of London had such a large population, it was already causing light pollution.</div>
+                    <label><input type="radio" name="q3"> TRUE</label><label><input type="radio" name="q3"> FALSE</label><label><input type="radio" name="q3"> NOT GIVEN</label>
+                </div>
+                <div class="question-block" id="q-4">
+                    <div><span class="q-num">4</span> The fishermen of the South Atlantic are unaware of the light pollution they are causing.</div>
+                    <label><input type="radio" name="q4"> TRUE</label><label><input type="radio" name="q4"> FALSE</label><label><input type="radio" name="q4"> NOT GIVEN</label>
+                </div>
+                <div class="question-block" id="q-5">
+                    <div><span class="q-num">5</span> Shadows from the planet Venus are more difficult to see at certain times of year.</div>
+                    <label><input type="radio" name="q5"> TRUE</label><label><input type="radio" name="q5"> FALSE</label><label><input type="radio" name="q5"> NOT GIVEN</label>
+                </div>
+                <div class="question-block" id="q-6">
+                    <div><span class="q-num">6</span> In some Swiss valleys, the total number of bats declined rapidly after the introduction of streetlights.</div>
+                    <label><input type="radio" name="q6"> TRUE</label><label><input type="radio" name="q6"> FALSE</label><label><input type="radio" name="q6"> NOT GIVEN</label>
+                </div>
+                <div class="question-block" id="q-7">
+                    <div><span class="q-num">7</span> The first attempts to limit light pollution were carried out to help those studying the stars.</div>
+                    <label><input type="radio" name="q7"> TRUE</label><label><input type="radio" name="q7"> FALSE</label><label><input type="radio" name="q7"> NOT GIVEN</label>
+                </div>
+                
+                <h3>Questions 8-13</h3>
+                <p><i>Complete the table below.<br>Choose <b>NO MORE THAN THREE WORDS</b> from the passage for each answer.</i></p>
+                <div class="question-block" id="q-8">
+                    <div><span class="q-num">8</span> The worst-affected birds are those which are <input type="text" placeholder="...">.</div>
+                </div>
+                <div class="question-block" id="q-9">
+                    <div><span class="q-num">9</span> They bump into <input type="text" placeholder="..."> which stand out at night.</div>
+                </div>
+                <div class="question-block" id="q-10">
+                    <div><span class="q-num">10</span> Desert rodents and badgers are more at risk from <input type="text" placeholder="...">.</div>
+                </div>
+                <div class="question-block" id="q-11">
+                    <div><span class="q-num">11</span> Early migration may mean the <input type="text" placeholder="..."> are not suitable on arrival.</div>
+                </div>
+                <div class="question-block" id="q-12">
+                    <div><span class="q-num">12</span> Sea turtles suffer from the decreasing number of <input type="text" placeholder="...">.</div>
+                </div>
+                <div class="question-block" id="q-13">
+                    <div><span class="q-num">13</span> Frogs and toads routines will be upset if they are near <input type="text" placeholder="...">.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-bar">
+        <div class="nav-group" id="nav-group-1">
+            <span class="part-label">Part 1</span>
+            <script>
+                // Generate navigation buttons for Questions 1 to 13
+                for(let i=1; i<=13; i++) {
+                    document.write(`<div class="nav-btn" onclick="scrollToQuestion(${i}, this)">${i}</div>`);
+                }
+            </script>
+        </div>
+    </div>
+
+    <script>
+        // Timer Logic
+        let timeRemaining = 3600; // 60 minutes in seconds
+        const timerDisplay = document.getElementById('time-display');
+
+        const timerInterval = setInterval(() => {
+            timeRemaining--;
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            
+            if (seconds < 10) seconds = '0' + seconds;
+            
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                timerDisplay.style.color = "#ff4c4c";
+                alert("Time is up! The test has concluded.");
+            }
+        }, 1000);
+
+        // Highlight Tooltip Logic
+        let currentSelectionRange = null;
+        const tooltip = document.getElementById('highlight-menu');
+
+        document.addEventListener('mouseup', function(e) {
+            // Only allow highlighting in the passage pane
+            if (!e.target.closest('.passage-pane')) return;
+
+            const selection = window.getSelection();
+            if (selection.toString().trim().length > 0) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 15}px`;
+                tooltip.style.display = 'flex';
+                currentSelectionRange = range;
+            }
+        });
+
+        document.addEventListener('mousedown', function(e) {
+            if (!e.target.closest('#highlight-menu')) {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        function applyHighlight() {
+            if (currentSelectionRange) {
+                const span = document.createElement('span');
+                span.className = 'ielts-highlight';
+                try {
+                    currentSelectionRange.surroundContents(span);
+                } catch (e) {
+                    alert("Please highlight text within a single paragraph or sentence to prevent formatting errors.");
+                }
+                window.getSelection().removeAllRanges();
+                tooltip.style.display = 'none';
+            }
+        }
+
+        // Navigation Logic
+        function scrollToQuestion(questionNumber, btnElement) {
+            // Update active state on buttons
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
+
+            // Scroll the questions pane to the specific question
+            const qElement = document.getElementById('q-' + questionNumber);
+            if (qElement) {
+                const pane = document.getElementById('qpane-1');
+                pane.scrollTo({
+                    top: qElement.offsetTop - pane.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+                
+                // Briefly flash the background to indicate focus
+                qElement.style.backgroundColor = '#e6f2ff';
+                setTimeout(() => { qElement.style.backgroundColor = 'transparent'; }, 1000);
+            }
+        }
+
+        // Initialize the first active button
+        window.onload = () => {
+            const firstBtn = document.querySelector('.nav-group .nav-btn');
+            if(firstBtn) firstBtn.classList.add('active');
+        }
+    </script>
+</body>
+</html>
