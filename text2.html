@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Computer-Based Reading Test - Part 3</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fff;
+            color: #000;
+            overflow: hidden; 
+        }
+
+        /* Top Header */
+        .header {
+            height: 50px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .timer {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Main Container */
+        #main-container {
+            display: flex;
+            height: calc(100vh - 130px); 
+            width: 100%;
+        }
+
+        .test-part {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Left and Right Panes */
+        .passage-pane, .questions-pane {
+            width: 50%;
+            padding: 30px 40px;
+            overflow-y: auto;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+        
+        .passage-pane {
+            border-right: 4px solid #ccc;
+            line-height: 1.8;
+            font-size: 15px;
+            text-align: justify;
+        }
+
+        .questions-pane {
+            background-color: #fafafa;
+        }
+
+        h2 { margin-top: 0; color: #333; font-size: 24px; text-align: center; margin-bottom: 25px; }
+        h3 { margin-top: 30px; border-bottom: 1px solid #ccc; padding-bottom: 5px; font-size: 18px;}
+
+        .info-box {
+            border: 1px solid #666;
+            padding: 15px;
+            background: #fff;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .info-box strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .list-options div {
+            margin-bottom: 5px;
+        }
+
+        /* Highlight Feature Tooltip */
+        #highlight-menu {
+            position: fixed;
+            display: none;
+            background: #fff;
+            border: 1px solid #aaa;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 1000;
+            padding: 2px;
+            align-items: center;
+        }
+        #highlight-menu::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px 6px 0;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+        }
+        #highlight-menu::before {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 7px 7px 0;
+            border-style: solid;
+            border-color: #aaa transparent transparent transparent;
+        }
+        .hm-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 12px;
+            color: #333;
+        }
+        .hm-btn:hover { background: #eee; }
+        .hm-btn:first-child { border-right: 1px solid #ddd; }
+        
+        .ielts-highlight { background-color: #ffeb3b; }
+
+        /* Question Blocks */
+        .question-block {
+            padding: 10px 0;
+            margin-bottom: 15px;
+        }
+        .q-num {
+            display: inline-block;
+            border: 1px solid #333;
+            padding: 2px 6px;
+            font-weight: bold;
+            margin-right: 10px;
+            background: #fff;
+        }
+        label { display: block; margin: 8px 0; cursor: pointer; }
+        input[type="text"], select {
+            padding: 5px;
+            font-size: 14px;
+            margin-top: 5px;
+            max-width: 100%;
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 80px;
+            background: #fff;
+            border-top: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .nav-group {
+            display: flex;
+            align-items: center;
+            margin-right: 40px;
+        }
+        .part-label {
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            margin-right: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+            border: 1px solid transparent;
+            text-decoration: none;
+        }
+        .nav-btn:hover { background: #eee; }
+        .nav-btn.active {
+            border: 2px solid #0056b3;
+            color: #0056b3;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <span>IELTS Reading Test - Part 3</span>
+        <div class="timer">
+            ⏱️ <span id="time-display">25:00</span>
+        </div>
+    </div>
+
+    <!-- Contextual Highlight Menu -->
+    <div id="highlight-menu">
+        <button class="hm-btn" onclick="alert('Note feature activated (placeholder)')">
+            <span style="font-size:16px;">💬</span><span>Note</span>
+        </button>
+        <button class="hm-btn" onclick="applyHighlight()">
+            <span style="font-size:16px;">🖍️</span><span>Highlight</span>
+        </button>
+    </div>
+
+    <div id="main-container">
+        
+        <div id="part-3" class="test-part">
+            <div class="passage-pane">
+                <h2>Have teenagers always existed?</h2>
+                
+                <p>Our ancestor, Homo erectus, may not have had culture or even language, but did they have teenagers? That question has been contested in the past few years, with some anthropologists claiming evidence of an adolescent phase in human fossil.This ls not merely an academic debate. Humans today are the only animals on Earth to have a teenage phase, yet we have very little idea why. Establishing exactly when adolescence first evolved and finding out what sorts of changes in our bodies and lifestyles it was associated with could help us understand its purpose.Why do we, uniquely, have a growth spurt so late in life?</p>
+                
+                <p>Until recently, the dominant explanation was that physical growth is delayed by our need to grow large brains and to learn all the behaviour patterns associated with humanity- speaking, social interaction and so on.While such behaviour is still developing, humans cannot easily fend for themselves, so it is best to stay small and look youthful. That way your parents and other members of the social group are motivated to continue looking after you.What's more, studies of mammals show a strong relationship between brain size and the rate of development, with larger-brained animals taking longer to reach adulthood. Humans are at the far end of this spectrum. If this theory is correct, and the development of large brains accounts for the teenage growth spurt, the origin of adolescence should have been with the evolution of our own species (Homo sapiens) and Neanderthals, starting almost 200,000 years ago. The trouble is, some of the fossil evidence seems to tell a different story.</p>
+                
+                <p>The human fossil record is extremely sparse, and the number of fossilised children minuscule. Nevertheless, in the past few years anthropologists have begun to look at what can be learned of the lives of our ancestors from these youngsters. One of the most studied is the famous Turkana boy, an almost complete skeleton of <i>Homo erectus</i> from 1.6 million years ago found in Kenya in 1984.Accurately assessing how old someone is from their skeleton is a tricky business. Even with a modern human, you can only make a rough estimate based on the developmental stage of teeth and bones and the skeleton's general size.</p>
+                
+                <p>You need as many developmental markers as possible to get an estimate of age. The Turkana boy's teeth made him I 0 or 11 years old. The features of his skeleton put him at· 13,but he was as tall as a modern 15-year-old. Susan Anton of New York University points to research by Margaret Clegg who studied a collection of ! Bth- and 19th-century skeletons whose ages at death were known. When she tried to age the skeletons without checking the records, she found similar discrepancies to those of the Turkana boy. One I 0-year-old boy, for example, had a dental age of 9, the skeleton of a 6-year-old but was tall enough to be ! I. 'The Turkana kid still has a rounded skull, and needs more growth to reach the adult shape; Anton adds. She thinks that Homo erectus had already developed modern human patterns of growth, with a late, if not quite so extreme, adolescent spurt. She believes Turkana boy was just about to enter it. </p>
+                
+                <p>lf Anton is right, that theory contradicts the orthodox idea linking late growth with development of a large brain.Anthropologist Steven Leigh from the University of Illinois goes further. He believes the idea of adolescence as catch-up growth does not explain why the growth rate increases so dramatically, He says that many apes have growth spurts in particular body regions that are associated with reaching maturity, and this makes sense because by timing the short but crucial spells of maturation to coincide with the seasons when food is plentiful, they minimise the risk of being without adequate food supplies while growing.What makes humans unique is that the whole skeleton is involved. For Leigh, this is the key. </p>
+                
+                <p>According to his theory, adolescence evolved as an integral part of efficient upright locomotion, as well as to accommodate more complex brains. Fossil evidence suggests that our ancestors first walked on two legs six million years ago. If proficient walking was important for survival, perhaps the teenage growth spurt has very ancient origins. While many anthropologists will consider Leigh's theory a step too far, he is not the only one with new ideas about the evolution of teenagers.</p>
+                
+                <p>Another approach, which has produced a surprising result, relies on the minute analysis of tooth growth. Ever)' nine days or so the growing teeth of both apes and humans acquire ridges on their enamel surface.These are like rings in a tree trunk: the number of them tells you how long the crown of a tooth took to form.Across mammals,the rate at which teeth develop is closely related to how fast the brain grows and the age you mature. Teeth are good indicators of life history because their growth is less related to the environment and nutrition than is the growth of the skeleton. </p>
+                
+                <p>A more decisive piece of evidence came last year, when researchers in France and Spain published their findings from a study of Neanderthal teeth. Neanderthals had much faster tooth growth than Homo erectus who went before them, and hence, possibly, a shorter childhood. Lead researcher Fernando Ramirez-Rozzi thinks Neanderthals died young - about 25 years old - primarily because of the cold, harsh environment they had to endure in glacial Europe. They evolved to grow up quicker than their immediate ancestors. Neanderthals and Homo erectus probably had to reach adulthood fairly quickly, wfthout delaying for an adolescent growth spurt. So it still looks as though we are the original teenagers . </p>
+
+            </div>
+            
+            <div class="questions-pane" id="qpane-3">
+                <h3>Questions 27-30</h3>
+                <p><i>Choose the correct letter, <b>A, B, C</b> or <b>D</b>.</i></p>
+                
+                <div class="question-block" id="q-27">
+                    <div><span class="q-num">27</span> In the first paragraph, why does the writer say 'This is not merely an academic debate'?</div>
+                    <label><input type="radio" name="q27"> A. Anthropologists' theories need to be backed up by practical research.</label>
+                    <label><input type="radio" name="q27"> B. There have been some important misunderstandings among anthropologists.</label>
+                    <label><input type="radio" name="q27"> C. The attitudes of anthropologists towards adolescence are changing.</label>
+                    <label><input type="radio" name="q27"> D. The work of anthropologists could inform our understanding of modern adolescence.</label>
+                </div>
+                
+                <div class="question-block" id="q-28">
+                    <div><span class="q-num">28</span> What was Susan Anton's opinion of the Turkana boy?</div>
+                    <label><input type="radio" name="q28"> A. He would have experienced an adolescent phase had he lived.</label>
+                    <label><input type="radio" name="q28"> B. His skull showed he had already reached adulthood.</label>
+                    <label><input type="radio" name="q28"> C. His skeleton and teeth could not be compared to those from a more modern age.</label>
+                    <label><input type="radio" name="q28"> D. He must have grown much faster than others alive at the time.</label>
+                </div>
+                
+                <div class="question-block" id="q-29">
+                    <div><span class="q-num">29</span> What point does Steven Leigh make?</div>
+                    <label><input type="radio" name="q29"> A. Different parts of the human skeleton develop at different speeds.</label>
+                    <label><input type="radio" name="q29"> B. The growth period of many apes is confined to times when there is enough food.</label>
+                    <label><input type="radio" name="q29"> C. Humans have different rates of development from each other depending on living conditions.</label>
+                    <label><input type="radio" name="q29"> D. The growth phase in most apes lasts longer if more food is available.</label>
+                </div>
+                
+                <div class="question-block" id="q-30">
+                    <div><span class="q-num">30</span> What can we learn from a mammal's teeth?</div>
+                    <label><input type="radio" name="q30"> A. A poor diet will cause them to grow more slowly.</label>
+                    <label><input type="radio" name="q30"> B. They are a better indication of lifestyle than a skeleton.</label>
+                    <label><input type="radio" name="q30"> C. Their growing period is difficult to predict accurately.</label>
+                    <label><input type="radio" name="q30"> D. Their speed of growth is directly related to the body's speed of development.</label>
+                </div>
+
+                <h3>Questions 31-36</h3>
+                <p><i>Do the following statements agree with the claims of the writer?<br><br>
+                <b>YES</b> if the statement agrees with the claims<br>
+                <b>NO</b> if the statement contradicts the claims<br>
+                <b>NOT GIVEN</b> if it is impossible to say what the writer thinks about this</i></p>
+                
+                <div class="question-block" id="q-31">
+                    <div><span class="q-num">31</span> It is difficult for anthropologists to do research on human fossils because they are so rare.</div>
+                    <label><input type="radio" name="q31" value="YES"> YES</label><label><input type="radio" name="q31" value="NO"> NO</label><label><input type="radio" name="q31" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <div class="question-block" id="q-32">
+                    <div><span class="q-num">32</span> Modern methods mean it is possible to predict the age of a skeleton with accuracy.</div>
+                    <label><input type="radio" name="q32" value="YES"> YES</label><label><input type="radio" name="q32" value="NO"> NO</label><label><input type="radio" name="q32" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <div class="question-block" id="q-33">
+                    <div><span class="q-num">33</span> Susan Anton's conclusion about the Turkana boy reinforces an established idea.</div>
+                    <label><input type="radio" name="q33" value="YES"> YES</label><label><input type="radio" name="q33" value="NO"> NO</label><label><input type="radio" name="q33" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <div class="question-block" id="q-34">
+                    <div><span class="q-num">34</span> Steven Leigh's ideas are likely to be met with disbelief by many anthropologists.</div>
+                    <label><input type="radio" name="q34" value="YES"> YES</label><label><input type="radio" name="q34" value="NO"> NO</label><label><input type="radio" name="q34" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <div class="question-block" id="q-35">
+                    <div><span class="q-num">35</span> Researchers in France and Spain developed a unique method of analysing teeth.</div>
+                    <label><input type="radio" name="q35" value="YES"> YES</label><label><input type="radio" name="q35" value="NO"> NO</label><label><input type="radio" name="q35" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <div class="question-block" id="q-36">
+                    <div><span class="q-num">36</span> There has been too little research comparing the brains of <i>Homo erectus</i> and Neanderthals.</div>
+                    <label><input type="radio" name="q36" value="YES"> YES</label><label><input type="radio" name="q36" value="NO"> NO</label><label><input type="radio" name="q36" value="NOT GIVEN"> NOT GIVEN</label>
+                </div>
+                
+                <h3>Questions 37-40</h3>
+                <p><i>Complete each sentence with the correct ending, <b>A–G</b>, below.</i></p>
+
+                <div class="info-box">
+                    <strong>Options</strong>
+                    <div class="list-options">
+                        <div><b>A</b> inconsistencies between height, skeleton and dental evidence.</div>
+                        <div><b>B</b> the fact that human beings walk on two legs.</div>
+                        <div><b>C</b> the way teeth grew.</div>
+                        <div><b>D</b> a need to be dependent on others for survival.</div>
+                        <div><b>E</b> difficult climatic conditions.</div>
+                        <div><b>F</b> increased quantities of food.</div>
+                        <div><b>G</b> the existence of much larger brains than previously.</div>
+                    </div>
+                </div>
+
+                <div class="question-block" id="q-37">
+                    <div><span class="q-num">37</span> Until recently, delayed growth in humans until adolescence was felt to be due to 
+                        <select>
+                            <option>Select...</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="question-block" id="q-38">
+                    <div><span class="q-num">38</span> In her research, Margaret Clegg discovered 
+                        <select>
+                            <option>Select...</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="question-block" id="q-39">
+                    <div><span class="q-num">39</span> Steven Leigh thought the existence of adolescence is connected to 
+                        <select>
+                            <option>Select...</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="question-block" id="q-40">
+                    <div><span class="q-num">40</span> Research on Neanderthals suggests that they had short lives because of 
+                        <select>
+                            <option>Select...</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-bar">
+        <div class="nav-group">
+            <span class="part-label">Part 3</span>
+            <div class="nav-btn" onclick="scrollToQuestion(27, this)">27</div>
+            <div class="nav-btn" onclick="scrollToQuestion(28, this)">28</div>
+            <div class="nav-btn" onclick="scrollToQuestion(29, this)">29</div>
+            <div class="nav-btn" onclick="scrollToQuestion(30, this)">30</div>
+            <div class="nav-btn" onclick="scrollToQuestion(31, this)">31</div>
+            <div class="nav-btn" onclick="scrollToQuestion(32, this)">32</div>
+            <div class="nav-btn" onclick="scrollToQuestion(33, this)">33</div>
+            <div class="nav-btn" onclick="scrollToQuestion(34, this)">34</div>
+            <div class="nav-btn" onclick="scrollToQuestion(35, this)">35</div>
+            <div class="nav-btn" onclick="scrollToQuestion(36, this)">36</div>
+            <div class="nav-btn" onclick="scrollToQuestion(37, this)">37</div>
+            <div class="nav-btn" onclick="scrollToQuestion(38, this)">38</div>
+            <div class="nav-btn" onclick="scrollToQuestion(39, this)">39</div>
+            <div class="nav-btn" onclick="scrollToQuestion(40, this)">40</div>
+        </div>
+    </div>
+
+    <script>
+        // Timer Logic (25 minutes = 1500 seconds)
+        let timeRemaining = 1500; 
+        const timerDisplay = document.getElementById('time-display');
+
+        const timerInterval = setInterval(() => {
+            timeRemaining--;
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+            
+            if (seconds < 10) seconds = '0' + seconds;
+            
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                timerDisplay.style.color = "#ff4c4c";
+                alert("Time is up! The test has concluded.");
+            }
+        }, 1000);
+
+        // Highlight Tooltip Logic
+        let currentSelectionRange = null;
+        const tooltip = document.getElementById('highlight-menu');
+
+        document.addEventListener('mouseup', function(e) {
+            // Only allow highlighting in the passage pane
+            if (!e.target.closest('.passage-pane')) return;
+
+            const selection = window.getSelection();
+            if (selection.toString().trim().length > 0) {
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                
+                tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 15}px`;
+                tooltip.style.display = 'flex';
+                currentSelectionRange = range;
+            }
+        });
+
+        document.addEventListener('mousedown', function(e) {
+            if (!e.target.closest('#highlight-menu')) {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        function applyHighlight() {
+            if (currentSelectionRange) {
+                const span = document.createElement('span');
+                span.className = 'ielts-highlight';
+                try {
+                    currentSelectionRange.surroundContents(span);
+                } catch (e) {
+                    alert("Please highlight text within a single paragraph or sentence to prevent formatting errors.");
+                }
+                window.getSelection().removeAllRanges();
+                tooltip.style.display = 'none';
+            }
+        }
+
+        // Navigation Logic
+        function scrollToQuestion(questionNumber, btnElement) {
+            // Update active state on buttons
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
+
+            // Scroll the questions pane to the specific question
+            const qElement = document.getElementById('q-' + questionNumber);
+            if (qElement) {
+                const pane = document.getElementById('qpane-3');
+                pane.scrollTo({
+                    top: qElement.offsetTop - pane.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+                
+                // Briefly flash the background to indicate focus
+                qElement.style.backgroundColor = '#e6f2ff';
+                setTimeout(() => { qElement.style.backgroundColor = 'transparent'; }, 1000);
+            }
+        }
+
+        // Initialize the first active button
+        window.onload = () => {
+            const firstBtn = document.querySelector('.nav-group .nav-btn');
+            if(firstBtn) firstBtn.classList.add('active');
+        }
+    </script>
+</body>
+</html>
